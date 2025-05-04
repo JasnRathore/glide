@@ -1,0 +1,24 @@
+package app
+
+import (
+	"log"
+	"github.com/jchv/go-webview2"
+)
+
+func App() webview2.WebView {
+	w := webview2.NewWithOptions(webview2.WebViewOptions{
+		Debug:     true,
+		AutoFocus: true,
+		WindowOptions: webview2.WindowOptions{
+			Title:  "{{.Title}}",
+			Width:  800,
+			Height: 600,
+			Center: true,
+		},
+	})
+	
+	if w == nil {
+		log.Fatalln("Failed to load webview.")
+	}
+	return w
+}

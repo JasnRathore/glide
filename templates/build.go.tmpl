@@ -1,0 +1,83 @@
+//go:build ignore
+package main
+
+import (
+	"embed"
+	"fmt"
+	"log"
+	"net"
+	"net/http"
+	
+	a "{{.Title}}/app"
+)
+
+//go:embed dist/*
+var content embed.FS
+
+func findAvailablePort(startPort int) (int, error) {
+	for port := startPort; port < 65535; port++ {
+		ln, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+		if err == nil {
+			ln.Close()
+			return port, nil
+		}
+	}
+	return 0, fmt.Errorf("could not find an available port")
+}
+
+func serveIndex(w http.ResponseWriter, r *http.Request) {
+	// Serve index.html as the entry point when the root URL is accessed
+	if r.URL.Path == "/" {
+		data, err := content.ReadFile("dist/index.html")
+		if err != nil {
+			http.Error(w, "Unable to load index.html", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html")
+		w.Write(data)
+	} else {
+		// For all other URLs, serve static assets correctly
+		data, err := content.ReadFile("dist" + r.URL.Path)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		// Set appropriate Content-Type based on file extension
+		switch {
+		case r.URL.Path[len(r.URL.Path)-3:] == "css":
+			w.Header().Set("Content-Type", "text/css")
+		case r.URL.Path[len(r.URL.Path)-2:] == "js":
+			w.Header().Set("Content-Type", "application/javascript")
+		default:
+			w.Header().Set("Content-Type", "application/octet-stream")
+		}
+		w.Write(data)
+	}
+}
+
+func main() {
+	port, err := findAvailablePort(8080)
+	if err != nil {
+		log.Fatalf("Error finding available port: %v", err)
+	}
+
+	// Serve the embedded static files from the `content` embed.FS
+	http.HandleFunc("/", serveIndex) // Handle the root URL and serve index.html
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(content)))) // Handle static assets
+
+	// Start the web server in a goroutine
+	go func() {
+		log.Printf("Starting local file server on http://localhost:%d", port)
+		if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
+			log.Fatalf("Error starting server: %v", err)
+		}
+	}()
+
+	// Initialize the webview
+	w := app()
+	defer w.Destroy()
+
+	// Navigate the webview to the local server URL
+	w.Navigate(fmt.Sprintf("http://localhost:%d", port))
+	w.Run()
+}
