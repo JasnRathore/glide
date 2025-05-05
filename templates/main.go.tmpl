@@ -4,13 +4,10 @@ import (
 	a "{{.Title}}/app"
 )
 
-
 func main() {
 	// port capturing to be automated in the future
 	port := "http://localhost:5173/"
-	
-	w := a.App()
-	defer w.Destroy()
-	w.Navigate(port)
-	w.Run()
+	app := a.App()
+	defer app.Terminate()
+	app.RunWithURL(port)
 }

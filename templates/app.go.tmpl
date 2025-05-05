@@ -2,23 +2,42 @@ package app
 
 import (
 	"log"
-	"github.com/jchv/go-webview2"
+	glide "github.com/JasnRathore/glide-lib"
 )
 
-func App() webview2.WebView {
-	w := webview2.NewWithOptions(webview2.WebViewOptions{
+func App() *glide.App {
+	config := glide.AppConfig{
+		Title:     "{{.Title}}",
+		Width:     500,
+		Height:    1080,
 		Debug:     true,
 		AutoFocus: true,
-		WindowOptions: webview2.WindowOptions{
-			Title:  "{{.Title}}",
-			Width:  800,
-			Height: 600,
-			Center: true,
+		IconID:    1,
+		
+		Tray: &glide.TrayConfig{
+			IconID:  2,
+			Title:   "{{.Title}}",
+			Tooltip: "{{.Title}}",
+		},
+	}
+
+	app := glide.New(config)
+	
+	app.AddMenuItem(glide.MenuItem{
+		Title: "Show Window",
+		Handler: func() {
+			log.Println("Show window requested")
+			app.ShowWindow()
+		},
+	})
+
+	app.AddMenuItem(glide.MenuItem{
+		Title: "Exit",
+		Handler: func() {
+			log.Println("Exit requested")
+			app.Exit()
 		},
 	})
 	
-	if w == nil {
-		log.Fatalln("Failed to load webview.")
-	}
-	return w
+	return app
 }

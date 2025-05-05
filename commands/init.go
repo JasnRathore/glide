@@ -139,6 +139,23 @@ func InstallFrontendDependencies(packageManager string) {
 	}
 }
 
+func GetFrontendDependenciesCommand(packageManager string) string {
+	switch packageManager {
+		case "npm":
+			return "npm install"
+		case "pnpm":
+			return "pnpm install"
+		case "yarn":
+			return "yarn"
+		case "bun":
+			return "bun install"
+		case "deno":
+			return "deno install"
+		default:
+			return "default"
+	}
+}
+
 func ui() (models.ProjectDetails, error) {
 	m := model {
 		state:   stateInput,
@@ -173,7 +190,7 @@ func InitProject() {
 	utils.Check(err)
 	
 	//install dependencies
-	InstallFrontendDependencies(project.PackageManager)
+	//InstallFrontendDependencies(project.PackageManager)
 	
 	
 	//making the glide config file
@@ -197,8 +214,9 @@ func InitProject() {
 	tmpl.CopyTemplate("air.toml.tmpl",".air.toml")	
 	
 	//installing dependencies	
-	repoName := "github.com/jchv/go-webview2"
+	repoName := "github.com/JasnRathore/glide-lib"
 	utils.RunCommand("go", "get", repoName)
+	
 	
 	//generating src-glide files
 	data := models.TemplateData {
@@ -208,6 +226,10 @@ func InitProject() {
 	err = os.Mkdir("app", 0755)
 	tmpl.GenerateTemplate("app.go.tmpl","app/app.go",data)	
 	tmpl.GenerateTemplate("build.go.tmpl","build.go",data)	
+	
+	fmt.Println("cd",strings.ToLower(project.Name))
+	fmt.Println(GetFrontendDependenciesCommand(project.PackageManager))
+	fmt.Println("glide dev")
 	
 }
 
