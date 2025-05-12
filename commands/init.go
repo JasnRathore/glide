@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"os"
+	"os/exec"
 	tea "github.com/charmbracelet/bubbletea"
 	utils "glide/utils"
 	models "glide/models"
@@ -178,12 +179,64 @@ func ui() (models.ProjectDetails, error) {
 }
 
 
+// checkCommand returns true if the command is available in the system PATH
+func checkCommand(name string) bool {
+	_, err := exec.LookPath(name)
+	return err == nil
+}
+
+// CheckDependencies verifies all required tools and returns true if all are installed
+func CheckDependencies(jsTool string) bool {
+	coreTools := []string{"go", "node", "air"}
+	jsOptions := map[string]bool{
+		"npm": true, "deno": true, "pnpm": true, "bun": true, "yarn": true,
+	}
+
+	jsTool = strings.ToLower(jsTool)
+	if !jsOptions[jsTool] {
+		fmt.Printf("⚠ '%s' is not a supported JS tool\n", jsTool)
+		return false
+	}
+
+	allInstalled := true
+
+	// Check core tools
+	for _, tool := range coreTools {
+		if checkCommand(tool) {
+			fmt.Printf("✔ %s is installed\n", tool)
+		} else {
+			fmt.Printf("✘ %s is NOT installed\n", tool)
+			allInstalled = false
+		}
+	}
+
+	// Check selected JS tool
+	if checkCommand(jsTool) {
+		fmt.Printf("✔ %s is installed\n", jsTool)
+	} else {
+		fmt.Printf("✘ %s is NOT installed\n", jsTool)
+		allInstalled = false
+	}
+
+	return allInstalled
+}
 
 func InitProject() {
 	//createing the webapp
+		
 	project, err := ui()
 	utils.Check(err)
+	
+	fmt.Println()
+	installed := CheckDependencies(project.PackageManager)	
+	if installed {
+		fmt.Println("\n✅ All dependencies are installed.")
+	} else {
+		fmt.Println("\n❌ Some dependencies are missing.")
+		return
+	}
 	CreateFrontend(project.PackageManager, project.Name)
+
 	
 	//go into projfolder
 	err = os.Chdir(strings.ToLower(project.Name))
@@ -192,13 +245,16 @@ func InitProject() {
 	//install dependencies
 	//InstallFrontendDependencies(project.PackageManager)
 	
-	
 	//making the glide config file
 	jsonData, err := utils.StructToJSON(project)
 	utils.Check(err)
 	err = utils.WriteJSONToFile("glide.config.json", jsonData)
 	utils.Check(err)
-	
+			
+	err = os.Mkdir("src/glide", 0755)
+	utils.Check(err)
+	tmpl.CopyTemplate("glidejs/glide.js.tmpl","src/glide/glide.js")	
+	tmpl.CopyTemplate("glidejs/glide.ts.tmpl","src/glide/glide.ts")	
 	//making the src-glide dir
 	dirName := "src-glide"
 	err = os.Mkdir(dirName, 0755)
@@ -214,7 +270,7 @@ func InitProject() {
 	tmpl.CopyTemplate("air.toml.tmpl",".air.toml")	
 	
 	//installing dependencies	
-	repoName := "github.com/JasnRathore/glide-lib"
+	repoName := "github.com/JasnRathore/glide-lib@latest"
 	utils.RunCommand("go", "get", repoName)
 	
 	

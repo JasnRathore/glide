@@ -9,7 +9,7 @@ import (
 	//"glide/models"
 )
 
-//go:embed *.tmpl
+//go:embed *.tmpl glidejs/*.tmpl
 var templatesFS embed.FS
 
 func LoadTemplate(templateName string) (string, error) {

@@ -2,8 +2,13 @@ package app
 
 import (
 	"log"
+	"fmt"
 	glide "github.com/JasnRathore/glide-lib"
 )
+
+func Greet(name string) string {
+	return fmt.Sprintf("Hello, %s", name)
+}
 
 func App() *glide.App {
 	config := glide.AppConfig{
@@ -22,6 +27,9 @@ func App() *glide.App {
 	}
 
 	app := glide.New(config)
+	
+	funcs := []interface{}{Greet}	
+	app.InvokeHandler(funcs)
 	
 	app.AddMenuItem(glide.MenuItem{
 		Title: "Show Window",

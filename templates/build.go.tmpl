@@ -73,11 +73,8 @@ func main() {
 		}
 	}()
 
-	// Initialize the webview
-	w := app()
-	defer w.Destroy()
-
-	// Navigate the webview to the local server URL
-	w.Navigate(fmt.Sprintf("http://localhost:%d", port))
-	w.Run()
+	finalport := fmt.Sprintf("http://localhost:%d", port)
+	app := a.App()
+	defer app.Terminate()
+	app.RunWithURL(finalport)
 }
