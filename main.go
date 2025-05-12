@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 	"fmt"
-	cmd "glide/commands"
+	cmd "github.com/JasnRathore/glide/commands"
 )
 
 func main() {

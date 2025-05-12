@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	utils "glide/utils"
+	utils "github.com/JasnRathore/glide/utils"
 )
 
 

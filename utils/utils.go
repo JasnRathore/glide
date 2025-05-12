@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"	
 	
-	models "glide/models"
+	models "github.com/JasnRathore/glide/models"
 )
 
 func Check(err error) {

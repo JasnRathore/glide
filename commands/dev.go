@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	utils "glide/utils"
+	utils "github.com/JasnRathore/glide/utils"
 )
 
 func getPackageManagerCommand(pm string) (string, []string) {

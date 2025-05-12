@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/exec"
 	tea "github.com/charmbracelet/bubbletea"
-	utils "glide/utils"
-	models "glide/models"
-	tmpl "glide/templates"
+	utils "github.com/JasnRathore/glide/utils"
+	models "github.com/JasnRathore/glide/models"
+	tmpl "github.com/JasnRathore/glide/templates"
 )
 
 type state int

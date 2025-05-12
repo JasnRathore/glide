@@ -1,4 +1,4 @@
-module glide
+module github.com/JasnRathore/glide
 
 go 1.23.0
 
